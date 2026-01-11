@@ -1,5 +1,10 @@
 # ioc2query
 
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/jakewarren/ioc2query/blob/master/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields)](http://makeapullrequest.com)
+[![Hosted on GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-222222?logo=githubpages&logoColor=white)](https://jakewarren.github.io/ioc2query/)
+
+
 Transform Indicators of Compromise (IOCs) into vendor-specific detection queries for threat hunting.
 
 ## Overview
