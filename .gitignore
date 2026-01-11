@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-ioc2query
+/ioc2query
 
 # Test binary, built with `go test -c`
 *.test
