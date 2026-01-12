@@ -7,7 +7,7 @@ TBD - created by archiving change add-s1-query-support. Update Purpose after arc
 The system MUST generate valid S1QLv2 queries to search for MD5 file hashes.
 
 **Acceptance Criteria:**
-- Uses `src.process.image.md5 IN (...) || tgt.file.md5 IN (...)` syntax
+- Uses `src.process.image.md5 in (...) || tgt.file.md5 in (...)` syntax
 - Properly quotes and formats hash values in query
 - Handles single and multiple MD5 hashes
 - Generates syntactically valid S1QL
@@ -15,12 +15,12 @@ The system MUST generate valid S1QLv2 queries to search for MD5 file hashes.
 #### Scenario: Single MD5 hash query
 **Given** IOCSet contains one MD5 hash "5d41402abc4b2a76b9719d911017c592"  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `src.process.image.md5 IN ("5d41402abc4b2a76b9719d911017c592") || tgt.file.md5 IN ("5d41402abc4b2a76b9719d911017c592")`
+**Then** the system returns query: `src.process.image.md5 in ("5d41402abc4b2a76b9719d911017c592") || tgt.file.md5 in ("5d41402abc4b2a76b9719d911017c592")`
 
 #### Scenario: Multiple MD5 hashes query
 **Given** IOCSet contains MD5 hashes ["hash1", "hash2", "hash3"]  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query with `src.process.image.md5 IN ("hash1", "hash2", "hash3") || tgt.file.md5 IN ("hash1", "hash2", "hash3")`
+**Then** the system returns query with `src.process.image.md5 in ("hash1", "hash2", "hash3") || tgt.file.md5 in ("hash1", "hash2", "hash3")`
 
 ---
 
@@ -28,7 +28,7 @@ The system MUST generate valid S1QLv2 queries to search for MD5 file hashes.
 The system MUST generate valid S1QLv2 queries to search for SHA1 file hashes.
 
 **Acceptance Criteria:**
-- Uses `src.process.image.sha1 IN (...) || tgt.file.sha1 IN (...)` syntax
+- Uses `src.process.image.sha1 in (...) || tgt.file.sha1 in (...)` syntax
 - Properly formats SHA1 hash values
 - Handles multiple SHA1 hashes in single query
 - Maintains S1QL syntax correctness
@@ -36,7 +36,7 @@ The system MUST generate valid S1QLv2 queries to search for SHA1 file hashes.
 #### Scenario: Single SHA1 hash query
 **Given** IOCSet contains one SHA1 hash "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed"  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `src.process.image.sha1 IN ("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed") || tgt.file.sha1 IN ("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed")`
+**Then** the system returns query: `src.process.image.sha1 in ("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed") || tgt.file.sha1 in ("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed")`
 
 ---
 
@@ -44,7 +44,7 @@ The system MUST generate valid S1QLv2 queries to search for SHA1 file hashes.
 The system MUST generate valid S1QLv2 queries to search for SHA256 file hashes.
 
 **Acceptance Criteria:**
-- Uses `src.process.image.sha256 IN (...) || tgt.file.sha256 IN (...)` syntax
+- Uses `src.process.image.sha256 in (...) || tgt.file.sha256 in (...)` syntax
 - Properly formats SHA256 hash values (64 hex chars)
 - Supports multiple SHA256 hashes
 - Generates valid S1QL syntax
@@ -52,7 +52,7 @@ The system MUST generate valid S1QLv2 queries to search for SHA256 file hashes.
 #### Scenario: Single SHA256 hash query
 **Given** IOCSet contains one SHA256 hash "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `src.process.image.sha256 IN ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855") || tgt.file.sha256 IN ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")`
+**Then** the system returns query: `src.process.image.sha256 in ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855") || tgt.file.sha256 in ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")`
 
 ---
 
@@ -60,20 +60,20 @@ The system MUST generate valid S1QLv2 queries to search for SHA256 file hashes.
 The system MUST generate valid S1QLv2 queries to search for domain names in network events.
 
 **Acceptance Criteria:**
-- Uses `event.dns.request IN (...)` syntax
+- Uses `event.dns.request in (...)` syntax
 - Properly escapes special characters in domain names
-- Handles multiple domains with IN operator
+- Handles multiple domains with in operator
 - Generates syntactically correct S1QL
 
 #### Scenario: Single domain query
 **Given** IOCSet contains domain "malicious.example.com"  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `event.dns.request IN ("malicious.example.com")`
+**Then** the system returns query: `event.dns.request in ("malicious.example.com")`
 
 #### Scenario: Multiple domains query
 **Given** IOCSet contains domains ["evil.com", "bad.org", "malware.net"]  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `event.dns.request IN ("evil.com", "bad.org", "malware.net")`
+**Then** the system returns query: `event.dns.request in ("evil.com", "bad.org", "malware.net")`
 
 ---
 
@@ -82,7 +82,7 @@ The system MUST generate valid S1QLv2 queries to search for IPv4 addresses in ne
 
 **Acceptance Criteria:**
 - Searches both src.ip.address and dst.ip.address fields
-- Uses `(src.ip.address IN (...) || dst.ip.address IN (...))` syntax
+- Uses `(src.ip.address in (...) || dst.ip.address in (...))` syntax
 - Handles single and multiple IP addresses
 - Properly formats IP addresses in query
 
@@ -94,7 +94,7 @@ The system MUST generate valid S1QLv2 queries to search for IPv4 addresses in ne
 #### Scenario: Multiple IPv4 query
 **Given** IOCSet contains IPs ["10.0.0.1", "10.0.0.2", "10.0.0.3"]  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query with `src.ip.address IN (...) || dst.ip.address IN (...)` for all IPs
+**Then** the system returns query with `src.ip.address in (...) || dst.ip.address in (...)` for all IPs
 
 ---
 

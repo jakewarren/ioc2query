@@ -67,21 +67,15 @@ func (b *S1QLBackend) GenerateQuery(iocs *extraction.IOCSet) (string, error) {
 
 	var groups []string
 	if len(fileParts) > 0 {
-		groups = append(groups, "("+strings.Join(fileParts, " || ")+")")
+		groups = append(groups, strings.Join(fileParts, " || "))
 	}
 	if len(networkParts) > 0 {
-		groups = append(groups, "("+strings.Join(networkParts, " || ")+")")
+		groups = append(groups, strings.Join(networkParts, " || "))
 	}
 
 	// Warn if query is very large
 	if iocs.Count() > 1000 {
 		fmt.Fprintf(os.Stderr, "Warning: Query contains %d IOCs, which may be very large\n", iocs.Count())
-	}
-
-	if len(groups) == 1 {
-		// Remove outer parentheses if only one group
-		res := groups[0]
-		return res[1 : len(res)-1], nil
 	}
 
 	return strings.Join(groups, " ||\n"), nil
@@ -122,35 +116,35 @@ func (b *S1QLBackend) GenerateQueries(iocs *extraction.IOCSet) ([]string, error)
 // generateMD5Query creates a query for MD5 hashes
 func (b *S1QLBackend) generateMD5Query(hashes []string) string {
 	hashList := b.formatStringList(hashes)
-	return fmt.Sprintf(`src.process.image.md5 IN (%s) || tgt.file.md5 IN (%s)`, hashList, hashList)
+	return fmt.Sprintf(`src.process.image.md5 in (%s) || tgt.file.md5 in (%s)`, hashList, hashList)
 }
 
 // generateSHA1Query creates a query for SHA1 hashes
 func (b *S1QLBackend) generateSHA1Query(hashes []string) string {
 	hashList := b.formatStringList(hashes)
-	return fmt.Sprintf(`src.process.image.sha1 IN (%s) || tgt.file.sha1 IN (%s)`, hashList, hashList)
+	return fmt.Sprintf(`src.process.image.sha1 in (%s) || tgt.file.sha1 in (%s)`, hashList, hashList)
 }
 
 // generateSHA256Query creates a query for SHA256 hashes
 func (b *S1QLBackend) generateSHA256Query(hashes []string) string {
 	hashList := b.formatStringList(hashes)
-	return fmt.Sprintf(`src.process.image.sha256 IN (%s) || tgt.file.sha256 IN (%s)`, hashList, hashList)
+	return fmt.Sprintf(`src.process.image.sha256 in (%s) || tgt.file.sha256 in (%s)`, hashList, hashList)
 }
 
 // generateDomainQuery creates a query for domains
 func (b *S1QLBackend) generateDomainQuery(domains []string) string {
 	domainList := b.formatStringList(domains)
-	return fmt.Sprintf(`event.dns.request IN (%s)`, domainList)
+	return fmt.Sprintf(`event.dns.request in (%s)`, domainList)
 }
 
 // generateIPQuery creates a query for IP addresses
 func (b *S1QLBackend) generateIPQuery(ips []string) string {
 	if len(ips) == 1 {
-		return fmt.Sprintf(`(src.ip.address = "%s" || dst.ip.address = "%s")`, ips[0], ips[0])
+		return fmt.Sprintf(`src.ip.address = "%s" || dst.ip.address = "%s"`, ips[0], ips[0])
 	}
 
 	ipList := b.formatStringList(ips)
-	return fmt.Sprintf(`(src.ip.address IN (%s) || dst.ip.address IN (%s))`, ipList, ipList)
+	return fmt.Sprintf(`src.ip.address in (%s) || dst.ip.address in (%s)`, ipList, ipList)
 }
 
 // formatStringList formats a list of strings for S1QL IN clauses
