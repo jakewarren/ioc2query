@@ -38,9 +38,6 @@ To run the web interface locally, you need a simple static web server.
    ```bash
    # Using Python
    python3 -m http.server -d web 8080
-   # Using Go
-   go install github.com/jakewarren/stastic@latest
-   stastic -d web
    ```
 3. Open `http://localhost:8080` in your browser.
 

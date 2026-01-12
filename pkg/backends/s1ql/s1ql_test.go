@@ -26,7 +26,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				MD5Hashes: []string{"5d41402abc4b2a76b9719d911017c592"},
 			},
-			want:    `src.process.image.md5 IN ("5d41402abc4b2a76b9719d911017c592") || tgt.file.md5 IN ("5d41402abc4b2a76b9719d911017c592")`,
+			want:    `src.process.image.md5 in ("5d41402abc4b2a76b9719d911017c592") || tgt.file.md5 in ("5d41402abc4b2a76b9719d911017c592")`,
 			wantErr: false,
 		},
 		{
@@ -34,7 +34,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				MD5Hashes: []string{"hash1", "hash2"},
 			},
-			want:    `src.process.image.md5 IN ("hash1", "hash2") || tgt.file.md5 IN ("hash1", "hash2")`,
+			want:    `src.process.image.md5 in ("hash1", "hash2") || tgt.file.md5 in ("hash1", "hash2")`,
 			wantErr: false,
 		},
 		{
@@ -42,7 +42,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				SHA1Hashes: []string{"356a192b7913b04c54574d18c28d46e6395428ab"},
 			},
-			want:    `src.process.image.sha1 IN ("356a192b7913b04c54574d18c28d46e6395428ab") || tgt.file.sha1 IN ("356a192b7913b04c54574d18c28d46e6395428ab")`,
+			want:    `src.process.image.sha1 in ("356a192b7913b04c54574d18c28d46e6395428ab") || tgt.file.sha1 in ("356a192b7913b04c54574d18c28d46e6395428ab")`,
 			wantErr: false,
 		},
 		{
@@ -50,7 +50,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				SHA256Hashes: []string{"hash1", "hash2", "hash3"},
 			},
-			want:    `src.process.image.sha256 IN ("hash1", "hash2", "hash3") || tgt.file.sha256 IN ("hash1", "hash2", "hash3")`,
+			want:    `src.process.image.sha256 in ("hash1", "hash2", "hash3") || tgt.file.sha256 in ("hash1", "hash2", "hash3")`,
 			wantErr: false,
 		},
 		{
@@ -58,7 +58,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				Domains: []string{"malicious.com"},
 			},
-			want:    `event.dns.request IN ("malicious.com")`,
+			want:    `event.dns.request in ("malicious.com")`,
 			wantErr: false,
 		},
 		{
@@ -66,7 +66,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				Domains: []string{"evil.com", "bad.net"},
 			},
-			want:    `event.dns.request IN ("evil.com", "bad.net")`,
+			want:    `event.dns.request in ("evil.com", "bad.net")`,
 			wantErr: false,
 		},
 		{
@@ -74,7 +74,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				IPv4Addresses: []string{"192.168.1.1"},
 			},
-			want:    `(src.ip.address = "192.168.1.1" || dst.ip.address = "192.168.1.1")`,
+			want:    `src.ip.address = "192.168.1.1" || dst.ip.address = "192.168.1.1"`,
 			wantErr: false,
 		},
 		{
@@ -82,7 +82,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				IPv4Addresses: []string{"10.0.0.1", "172.16.0.1"},
 			},
-			want:    `(src.ip.address IN ("10.0.0.1", "172.16.0.1") || dst.ip.address IN ("10.0.0.1", "172.16.0.1"))`,
+			want:    `src.ip.address in ("10.0.0.1", "172.16.0.1") || dst.ip.address in ("10.0.0.1", "172.16.0.1")`,
 			wantErr: false,
 		},
 		{
@@ -94,8 +94,8 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 				Domains:       []string{"evil.com"},
 				IPv4Addresses: []string{"1.2.3.4"},
 			},
-			want: `(src.process.image.md5 IN ("md5hash") || tgt.file.md5 IN ("md5hash") || src.process.image.sha1 IN ("sha1hash") || tgt.file.sha1 IN ("sha1hash") || src.process.image.sha256 IN ("sha256hash") || tgt.file.sha256 IN ("sha256hash")) ||
-(event.dns.request IN ("evil.com") || (src.ip.address = "1.2.3.4" || dst.ip.address = "1.2.3.4"))`,
+			want: `src.process.image.md5 in ("md5hash") || tgt.file.md5 in ("md5hash") || src.process.image.sha1 in ("sha1hash") || tgt.file.sha1 in ("sha1hash") || src.process.image.sha256 in ("sha256hash") || tgt.file.sha256 in ("sha256hash") ||
+event.dns.request in ("evil.com") || src.ip.address = "1.2.3.4" || dst.ip.address = "1.2.3.4"`,
 			wantErr: false,
 		},
 		{
@@ -142,10 +142,10 @@ func TestS1QLBackend_GenerateQueries(t *testing.T) {
 				IPv4Addresses: []string{"1.2.3.4"},
 			},
 			want: []string{
-				`src.process.image.md5 IN ("md5_1") || tgt.file.md5 IN ("md5_1")`,
-				`src.process.image.md5 IN ("md5_2") || tgt.file.md5 IN ("md5_2")`,
-				`event.dns.request IN ("evil.com")`,
-				`(src.ip.address = "1.2.3.4" || dst.ip.address = "1.2.3.4")`,
+				`src.process.image.md5 in ("md5_1") || tgt.file.md5 in ("md5_1")`,
+				`src.process.image.md5 in ("md5_2") || tgt.file.md5 in ("md5_2")`,
+				`event.dns.request in ("evil.com")`,
+				`src.ip.address = "1.2.3.4" || dst.ip.address = "1.2.3.4"`,
 			},
 			wantErr: false,
 		},
@@ -156,9 +156,9 @@ func TestS1QLBackend_GenerateQueries(t *testing.T) {
 				SHA256Hashes: []string{"hash3"},
 			},
 			want: []string{
-				`src.process.image.md5 IN ("hash1") || tgt.file.md5 IN ("hash1")`,
-				`src.process.image.md5 IN ("hash2") || tgt.file.md5 IN ("hash2")`,
-				`src.process.image.sha256 IN ("hash3") || tgt.file.sha256 IN ("hash3")`,
+				`src.process.image.md5 in ("hash1") || tgt.file.md5 in ("hash1")`,
+				`src.process.image.md5 in ("hash2") || tgt.file.md5 in ("hash2")`,
+				`src.process.image.sha256 in ("hash3") || tgt.file.sha256 in ("hash3")`,
 			},
 			wantErr: false,
 		},
