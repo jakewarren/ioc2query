@@ -380,6 +380,7 @@ func TestR7Backend_GenerateQueries(t *testing.T) {
 			}
 			if len(got) != tt.wantCount {
 				t.Errorf("GenerateQueries() returned %d queries, want %d", len(got), tt.wantCount)
+				return
 			}
 			if tt.validate != nil {
 				tt.validate(t, got)

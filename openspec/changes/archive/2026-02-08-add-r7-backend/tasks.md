@@ -115,11 +115,11 @@
 ---
 
 ### Task 1.10: Implement GenerateQuery (combined mode)
-- [x] Implement `GenerateQuery(iocs *extraction.IOCSet) (string, error)` method
+- [x] Implement `GenerateQuery(iocs *extraction.IOCSet) ([]string, error)` method
 - [x] Handle nil/empty IOCSet with descriptive error
 - [x] Combine all hash types into single hash list
 - [x] Generate individual queries for each IOC type
-- [x] Combine with " OR " separator
+- [x] Return queries as separate slice elements (one per IOC type)
 - [x] Add warning to stderr if total IOC count > 1000
 - [x] Run tests - they should pass
 

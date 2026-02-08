@@ -1,7 +1,8 @@
 # r7-backend Specification
 
 ## Purpose
-TBD - created by archiving change add-r7-backend. Update Purpose after archive.
+The R7 backend enables security analysts using Rapid7 InsightIDR to transform extracted IOCs (MD5/SHA1/SHA256 hashes, domain names, and IPv4 addresses) into vendor-specific Rapid7 AQL (Advanced Query Language) detection queries. This capability addresses the problem of manually converting threat intelligence indicators into platform-specific search syntax, allowing incident responders and threat hunters to rapidly pivot from IOC data to runnable SIEM queries. Implemented as part of the `add-r7-backend` change, this backend fulfills the `pkg/backends.Backend` interface contract, providing `GenerateQuery()` methods that accept an `extraction.IOCSet` and return syntactically valid Rapid7 AQL queries using appropriate field mappings (wildcard hash patterns, `ICONTAINS-ANY` for domains, `IN` for IPs) and operators. The implementation must support both combined-query mode (all IOCs in a single query) and separate-query mode (one query per IOC type), with correct quoting, escaping, and field selection conforming to Rapid7 InsightIDR platform requirements.
+
 ## Requirements
 ### Requirement: System SHALL generate query for all hash types
 The system MUST generate valid Rapid7 AQL queries to search for file hashes (MD5, SHA1, SHA256) using wildcard pattern matching.

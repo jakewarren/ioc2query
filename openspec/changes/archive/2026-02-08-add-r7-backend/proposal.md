@@ -40,7 +40,10 @@ Implement a Rapid7 backend (`r7`) that:
 - **r7-backend** (ADDED): New capability for Rapid7 query generation
 
 ## Dependencies
-- Existing `pkg/backends.Backend` interface (no changes required)
+- **BREAKING CHANGE**: `pkg/backends.Backend` interface modified
+  - `GenerateQuery` signature changed from `(string, error)` to `([]string, error)`
+  - Downstream backends (e.g., `s1ql`) must be adapted to return `[]string` instead of `string`
+  - Refer to `pkg/backends/interface.go` for the updated `Backend` interface
 - Existing `pkg/extraction.IOCSet` structure (no changes required)
 - CLI flag parsing (minimal change to add "r7" option)
 

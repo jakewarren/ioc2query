@@ -47,6 +47,9 @@ func main() {
 
 func run() error {
 	// Handle shortcuts
+	if *s1Flag && *r7Flag {
+		return &InvalidArgsError{fmt.Errorf("cannot specify both --s1 and --r7 flags simultaneously")}
+	}
 	if *s1Flag {
 		*backendFlag = "s1"
 	}

@@ -180,10 +180,11 @@ Following S1QL pattern:
 Pattern from S1QL backend:
 ```go
 func TestR7Backend_GenerateQuery(t *testing.T) {
+    backend := New(nil)
     tests := []struct {
         name     string
         iocs     *extraction.IOCSet
-        want     string
+        want     []string
         wantErr  bool
     }{
         {
@@ -191,14 +192,28 @@ func TestR7Backend_GenerateQuery(t *testing.T) {
             iocs: &extraction.IOCSet{
                 MD5Hashes: []string{"5d41402abc4b2a76b9719d911017c592"},
             },
-            want: `where("parent_process.exe_file.hashes.*","process.exe_file.hashes.*" IN ['5d41402abc4b2a76b9719d911017c592'])`,
+            want: []string{`where("parent_process.exe_file.hashes.*","process.exe_file.hashes.*" IN ['5d41402abc4b2a76b9719d911017c592'])`},
+            wantErr: false,
         },
         // ... more test cases
     }
     
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
-            // test implementation
+            got, err := backend.GenerateQuery(tt.iocs)
+            if (err != nil) != tt.wantErr {
+                t.Errorf("GenerateQuery() error = %v, wantErr %v", err, tt.wantErr)
+                return
+            }
+            if len(got) != len(tt.want) {
+                t.Errorf("GenerateQuery() returned %d queries, want %d", len(got), len(tt.want))
+                return
+            }
+            for i := range got {
+                if got[i] != tt.want[i] {
+                    t.Errorf("GenerateQuery()[%d] = %v, want %v", i, got[i], tt.want[i])
+                }
+            }
         })
     }
 }
