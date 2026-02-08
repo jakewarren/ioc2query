@@ -18,7 +18,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 	tests := []struct {
 		name    string
 		iocs    *extraction.IOCSet
-		want    string
+		want    []string
 		wantErr bool
 	}{
 		{
@@ -26,7 +26,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				MD5Hashes: []string{"5d41402abc4b2a76b9719d911017c592"},
 			},
-			want:    `src.process.image.md5 in ("5d41402abc4b2a76b9719d911017c592") || tgt.file.md5 in ("5d41402abc4b2a76b9719d911017c592")`,
+			want:    []string{`src.process.image.md5 in ("5d41402abc4b2a76b9719d911017c592") || tgt.file.md5 in ("5d41402abc4b2a76b9719d911017c592")`},
 			wantErr: false,
 		},
 		{
@@ -34,7 +34,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				MD5Hashes: []string{"hash1", "hash2"},
 			},
-			want:    `src.process.image.md5 in ("hash1", "hash2") || tgt.file.md5 in ("hash1", "hash2")`,
+			want:    []string{`src.process.image.md5 in ("hash1", "hash2") || tgt.file.md5 in ("hash1", "hash2")`},
 			wantErr: false,
 		},
 		{
@@ -42,7 +42,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				SHA1Hashes: []string{"356a192b7913b04c54574d18c28d46e6395428ab"},
 			},
-			want:    `src.process.image.sha1 in ("356a192b7913b04c54574d18c28d46e6395428ab") || tgt.file.sha1 in ("356a192b7913b04c54574d18c28d46e6395428ab")`,
+			want:    []string{`src.process.image.sha1 in ("356a192b7913b04c54574d18c28d46e6395428ab") || tgt.file.sha1 in ("356a192b7913b04c54574d18c28d46e6395428ab")`},
 			wantErr: false,
 		},
 		{
@@ -50,7 +50,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				SHA256Hashes: []string{"hash1", "hash2", "hash3"},
 			},
-			want:    `src.process.image.sha256 in ("hash1", "hash2", "hash3") || tgt.file.sha256 in ("hash1", "hash2", "hash3")`,
+			want:    []string{`src.process.image.sha256 in ("hash1", "hash2", "hash3") || tgt.file.sha256 in ("hash1", "hash2", "hash3")`},
 			wantErr: false,
 		},
 		{
@@ -58,7 +58,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				Domains: []string{"malicious.com"},
 			},
-			want:    `event.dns.request in ("malicious.com")`,
+			want:    []string{`event.dns.request in ("malicious.com")`},
 			wantErr: false,
 		},
 		{
@@ -66,7 +66,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				Domains: []string{"evil.com", "bad.net"},
 			},
-			want:    `event.dns.request in ("evil.com", "bad.net")`,
+			want:    []string{`event.dns.request in ("evil.com", "bad.net")`},
 			wantErr: false,
 		},
 		{
@@ -74,7 +74,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				IPv4Addresses: []string{"192.168.1.1"},
 			},
-			want:    `src.ip.address = "192.168.1.1" || dst.ip.address = "192.168.1.1"`,
+			want:    []string{`src.ip.address = "192.168.1.1" || dst.ip.address = "192.168.1.1"`},
 			wantErr: false,
 		},
 		{
@@ -82,7 +82,7 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 			iocs: &extraction.IOCSet{
 				IPv4Addresses: []string{"10.0.0.1", "172.16.0.1"},
 			},
-			want:    `src.ip.address in ("10.0.0.1", "172.16.0.1") || dst.ip.address in ("10.0.0.1", "172.16.0.1")`,
+			want:    []string{`src.ip.address in ("10.0.0.1", "172.16.0.1") || dst.ip.address in ("10.0.0.1", "172.16.0.1")`},
 			wantErr: false,
 		},
 		{
@@ -94,20 +94,20 @@ func TestS1QLBackend_GenerateQuery(t *testing.T) {
 				Domains:       []string{"evil.com"},
 				IPv4Addresses: []string{"1.2.3.4"},
 			},
-			want: `src.process.image.md5 in ("md5hash") || tgt.file.md5 in ("md5hash") || src.process.image.sha1 in ("sha1hash") || tgt.file.sha1 in ("sha1hash") || src.process.image.sha256 in ("sha256hash") || tgt.file.sha256 in ("sha256hash") ||
-event.dns.request in ("evil.com") || src.ip.address = "1.2.3.4" || dst.ip.address = "1.2.3.4"`,
+			want: []string{`src.process.image.md5 in ("md5hash") || tgt.file.md5 in ("md5hash") || src.process.image.sha1 in ("sha1hash") || tgt.file.sha1 in ("sha1hash") || src.process.image.sha256 in ("sha256hash") || tgt.file.sha256 in ("sha256hash") ||
+event.dns.request in ("evil.com") || src.ip.address = "1.2.3.4" || dst.ip.address = "1.2.3.4"`},
 			wantErr: false,
 		},
 		{
 			name:    "empty IOC set",
 			iocs:    &extraction.IOCSet{},
-			want:    "",
+			want:    nil,
 			wantErr: true,
 		},
 		{
 			name:    "nil IOC set",
 			iocs:    nil,
-			want:    "",
+			want:    nil,
 			wantErr: true,
 		},
 	}
@@ -120,8 +120,14 @@ event.dns.request in ("evil.com") || src.ip.address = "1.2.3.4" || dst.ip.addres
 				t.Errorf("GenerateQuery() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("GenerateQuery() = %v, want %v", got, tt.want)
+			if len(got) != len(tt.want) {
+				t.Errorf("GenerateQuery() returned %d queries, want %d", len(got), len(tt.want))
+				return
+			}
+			for i := range got {
+				if got[i] != tt.want[i] {
+					t.Errorf("GenerateQuery()[%d] = %v, want %v", i, got[i], tt.want[i])
+				}
 			}
 		})
 	}

@@ -9,7 +9,7 @@ build:
 
 wasm: $(WASM_OUT) $(WASM_EXEC_JS)
 
-$(WASM_OUT): cmd/ioc2query/main.go pkg/extraction/extractor.go pkg/backends/s1ql/s1ql.go
+$(WASM_OUT): cmd/ioc2query/main.go pkg/extraction/extractor.go pkg/backends/s1ql/s1ql.go pkg/backends/r7/r7.go
 	@echo "Building WASM binary..."
 	GOOS=js GOARCH=wasm go build -o $(WASM_OUT) ./cmd/ioc2query
 
