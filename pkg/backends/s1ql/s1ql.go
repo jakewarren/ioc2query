@@ -40,10 +40,10 @@ func (b *S1QLBackend) Name() string {
 	return "s1"
 }
 
-// GenerateQuery creates a single combined query from all IOCs
-func (b *S1QLBackend) GenerateQuery(iocs *extraction.IOCSet) (string, error) {
+// GenerateQuery creates queries grouped by IOC category
+func (b *S1QLBackend) GenerateQuery(iocs *extraction.IOCSet) ([]string, error) {
 	if iocs == nil || iocs.IsEmpty() {
-		return "", fmt.Errorf("IOC set is empty")
+		return nil, fmt.Errorf("IOC set is empty")
 	}
 
 	var fileParts []string
@@ -78,7 +78,8 @@ func (b *S1QLBackend) GenerateQuery(iocs *extraction.IOCSet) (string, error) {
 		fmt.Fprintf(os.Stderr, "Warning: Query contains %d IOCs, which may be very large\n", iocs.Count())
 	}
 
-	return strings.Join(groups, " ||\n"), nil
+	// SentinelOne supports consolidated queries across all IOC types
+	return []string{strings.Join(groups, " ||\n")}, nil
 }
 
 // GenerateQueries creates individual queries for each IOC

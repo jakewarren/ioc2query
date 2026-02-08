@@ -69,13 +69,15 @@ func (e *Extractor) Extract(input string) (*IOCSet, error)
 ```go
 // Backend generates vendor-specific queries from IOCs
 type Backend interface {
-    // Name returns the backend identifier (e.g., "s1", "rapid7")
+    // Name returns the backend identifier (e.g., "s1", "r7")
     Name() string
     
-    // GenerateQuery creates a single combined query
-    GenerateQuery(iocs *extraction.IOCSet) (string, error)
+    // GenerateQuery creates queries grouped by IOC type/category
+    // Returns []string where each element is a query for a logical grouping
+    // CLI/presentation layer handles joining with appropriate formatting
+    GenerateQuery(iocs *extraction.IOCSet) ([]string, error)
     
-    // GenerateQueries creates individual queries per IOC
+    // GenerateQueries creates individual queries per IOC indicator
     GenerateQueries(iocs *extraction.IOCSet) ([]string, error)
 }
 ```
@@ -83,7 +85,11 @@ type Backend interface {
 **Design Rationale:**
 - Interface enables easy addition of future backends (Rapid7, etc.)
 - Two generation modes support different analyst workflows
-- Simple string output for CLI integration
+- []string output separates query generation from presentation formatting
+- CLI layer joins queries with "\n\n" for readability
+- Backends can control their own grouping strategy:
+  - S1QL: Single consolidated query (1 element array) since SentinelOne supports cross-dataset queries
+  - R7: Separate queries per IOC type (3 element array) for better readability in Rapid7 UI
 
 ### 3. S1QL Backend (`pkg/backends/s1ql`)
 

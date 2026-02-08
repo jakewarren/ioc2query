@@ -15,12 +15,12 @@ The system MUST generate valid S1QLv2 queries to search for MD5 file hashes.
 #### Scenario: Single MD5 hash query
 **Given** IOCSet contains one MD5 hash "5d41402abc4b2a76b9719d911017c592"  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `src.process.image.md5 in ("5d41402abc4b2a76b9719d911017c592") || tgt.file.md5 in ("5d41402abc4b2a76b9719d911017c592")`
+**Then** the system returns []string with 1 element: `src.process.image.md5 in ("5d41402abc4b2a76b9719d911017c592") || tgt.file.md5 in ("5d41402abc4b2a76b9719d911017c592")`
 
 #### Scenario: Multiple MD5 hashes query
 **Given** IOCSet contains MD5 hashes ["hash1", "hash2", "hash3"]  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query with `src.process.image.md5 in ("hash1", "hash2", "hash3") || tgt.file.md5 in ("hash1", "hash2", "hash3")`
+**Then** the system returns []string with 1 element containing `src.process.image.md5 in ("hash1", "hash2", "hash3") || tgt.file.md5 in ("hash1", "hash2", "hash3")`
 
 ---
 
@@ -36,7 +36,7 @@ The system MUST generate valid S1QLv2 queries to search for SHA1 file hashes.
 #### Scenario: Single SHA1 hash query
 **Given** IOCSet contains one SHA1 hash "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed"  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `src.process.image.sha1 in ("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed") || tgt.file.sha1 in ("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed")`
+**Then** the system returns []string with 1 element: `src.process.image.sha1 in ("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed") || tgt.file.sha1 in ("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed")`
 
 ---
 
@@ -52,7 +52,7 @@ The system MUST generate valid S1QLv2 queries to search for SHA256 file hashes.
 #### Scenario: Single SHA256 hash query
 **Given** IOCSet contains one SHA256 hash "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `src.process.image.sha256 in ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855") || tgt.file.sha256 in ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")`
+**Then** the system returns []string with 1 element: `src.process.image.sha256 in ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855") || tgt.file.sha256 in ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")`
 
 ---
 
@@ -68,12 +68,12 @@ The system MUST generate valid S1QLv2 queries to search for domain names in netw
 #### Scenario: Single domain query
 **Given** IOCSet contains domain "malicious.example.com"  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `event.dns.request in ("malicious.example.com")`
+**Then** the system returns []string with 1 element: `event.dns.request in ("malicious.example.com")`
 
 #### Scenario: Multiple domains query
 **Given** IOCSet contains domains ["evil.com", "bad.org", "malware.net"]  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `event.dns.request in ("evil.com", "bad.org", "malware.net")`
+**Then** the system returns []string with 1 element: `event.dns.request in ("evil.com", "bad.org", "malware.net")`
 
 ---
 
@@ -89,34 +89,41 @@ The system MUST generate valid S1QLv2 queries to search for IPv4 addresses in ne
 #### Scenario: Single IPv4 query
 **Given** IOCSet contains IP address "192.168.1.100"  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query: `(src.ip.address = "192.168.1.100" || dst.ip.address = "192.168.1.100")`
+**Then** the system returns []string with 1 element: `(src.ip.address = "192.168.1.100" || dst.ip.address = "192.168.1.100")`
 
 #### Scenario: Multiple IPv4 query
 **Given** IOCSet contains IPs ["10.0.0.1", "10.0.0.2", "10.0.0.3"]  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns query with `src.ip.address in (...) || dst.ip.address in (...)` for all IPs
+**Then** the system returns []string with 1 element containing `src.ip.address in (...) || dst.ip.address in (...)` for all IPs
 
 ---
 
-### Requirement: System SHALL generate combined query
-The system MUST generate a single combined S1QL query when IOCSet contains multiple IOC types.
+### Requirement: System SHALL generate consolidated query
+The system MUST generate a single consolidated S1QL query when IOCSet contains multiple IOC types, returning it as a []string with one element.
 
 **Acceptance Criteria:**
-- Combines all IOC types with OR logic
+- GenerateQuery returns []string containing single consolidated query
+- Combines all IOC types with OR logic in one query string
 - Groups file hash queries together
-- Groups network queries together
+- Groups network queries together  
+- SentinelOne portal supports consolidated searches across datasets
 - Maintains proper parentheses and precedence
 - Query is syntactically valid S1QL
 
 #### Scenario: Mixed IOC types
 **Given** IOCSet contains MD5 hashes, domains, and IPv4 addresses  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns a single query combining all types with OR operators
+**Then** the system returns []string with 1 element combining all types with OR operators
 
 #### Scenario: All IOC types present
 **Given** IOCSet contains MD5, SHA1, SHA256, domains, and IPs  
 **When** GenerateQuery is called for S1QL backend  
-**Then** the system returns properly structured query: `(file conditions) || (network conditions)`
+**Then** the system returns []string with 1 element containing properly structured query: `(file conditions) ||\n(network conditions)`
+
+#### Scenario: Single query consolidation
+**Given** any IOCSet with multiple IOC types  
+**When** GenerateQuery is called for S1QL backend  
+**Then** the returned []string has exactly 1 element (consolidated query), not separate queries per IOC type
 
 ---
 

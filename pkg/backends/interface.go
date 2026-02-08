@@ -9,8 +9,8 @@ type Backend interface {
 	// Name returns the backend identifier (e.g., "s1", "rapid7")
 	Name() string
 
-	// GenerateQuery creates a single combined query
-	GenerateQuery(iocs *extraction.IOCSet) (string, error)
+	// GenerateQuery creates queries grouped by IOC type
+	GenerateQuery(iocs *extraction.IOCSet) ([]string, error)
 
 	// GenerateQueries creates individual queries per IOC
 	GenerateQueries(iocs *extraction.IOCSet) ([]string, error)

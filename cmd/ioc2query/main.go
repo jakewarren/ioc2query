@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/jakewarren/ioc2query/pkg/backends"
+	"github.com/jakewarren/ioc2query/pkg/backends/r7"
 	"github.com/jakewarren/ioc2query/pkg/backends/s1ql"
 	"github.com/jakewarren/ioc2query/pkg/extraction"
 )
@@ -21,8 +22,9 @@ const (
 )
 
 var (
-	backendFlag  = flag.String("backend", "", "Backend to use (s1)")
+	backendFlag  = flag.String("backend", "", "Backend to use (s1, r7)")
 	s1Flag       = flag.Bool("s1", false, "Shortcut for --backend s1")
+	r7Flag       = flag.Bool("r7", false, "Shortcut for --backend r7")
 	inputFlag    = flag.String("input", "", "Input file (default: stdin)")
 	outputFlag   = flag.String("output", "", "Output file (default: stdout)")
 	separateFlag = flag.Bool("separate", false, "Generate separate queries per IOC type")
@@ -30,7 +32,7 @@ var (
 )
 
 func main() {
-	flag.StringVar(backendFlag, "b", "", "Backend to use (s1)")
+	flag.StringVar(backendFlag, "b", "", "Backend to use (s1, r7)")
 	flag.StringVar(inputFlag, "i", "", "Input file (default: stdin)")
 	flag.StringVar(outputFlag, "o", "", "Output file (default: stdout)")
 	flag.BoolVar(separateFlag, "s", false, "Generate separate queries per IOC type")
@@ -48,10 +50,13 @@ func run() error {
 	if *s1Flag {
 		*backendFlag = "s1"
 	}
+	if *r7Flag {
+		*backendFlag = "r7"
+	}
 
 	// Validate backend flag is provided
 	if *backendFlag == "" {
-		return &InvalidArgsError{fmt.Errorf("backend required (use --s1 or --backend s1)")}
+		return &InvalidArgsError{fmt.Errorf("backend required (use --s1, --r7, or --backend <name>)")}
 	}
 
 	// Read input
@@ -101,18 +106,13 @@ func run() error {
 		if err != nil {
 			return &QueryGenError{err}
 		}
-		for i, query := range queries {
-			if i > 0 {
-				output += "\n\n"
-			}
-			output += query
-		}
+		output = strings.Join(queries, "\n\n")
 	} else {
-		query, err := backend.GenerateQuery(iocs)
+		queries, err := backend.GenerateQuery(iocs)
 		if err != nil {
 			return &QueryGenError{err}
 		}
-		output = query
+		output = strings.Join(queries, "\n\n")
 	}
 
 	// Write output
@@ -189,8 +189,10 @@ func selectBackend(name string) (backends.Backend, error) {
 	switch name {
 	case "s1":
 		return s1ql.New(nil), nil
+	case "r7":
+		return r7.New(nil), nil
 	default:
-		return nil, fmt.Errorf("unknown backend: %s (supported: s1)", name)
+		return nil, fmt.Errorf("unknown backend: %s (supported: s1, r7)", name)
 	}
 }
 
