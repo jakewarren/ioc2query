@@ -12,6 +12,6 @@ type Backend interface {
 	// GenerateQuery creates queries grouped by IOC type
 	GenerateQuery(iocs *extraction.IOCSet) ([]string, error)
 
-	// GenerateQueries creates individual queries per IOC
+	// GenerateQueries creates one query per IOC type
 	GenerateQueries(iocs *extraction.IOCSet) ([]string, error)
 }

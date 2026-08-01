@@ -141,30 +141,46 @@ func TestS1QLBackend_GenerateQueries(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "separate queries for each indicator",
+			name: "one query per IOC type, values grouped within type",
 			iocs: &extraction.IOCSet{
 				MD5Hashes:     []string{"md5_1", "md5_2"},
 				Domains:       []string{"evil.com"},
 				IPv4Addresses: []string{"1.2.3.4"},
 			},
 			want: []string{
-				`any(src.process.image.md5, tgt.file.md5) in ("md5_1")`,
-				`any(src.process.image.md5, tgt.file.md5) in ("md5_2")`,
+				`any(src.process.image.md5, tgt.file.md5) in ("md5_1", "md5_2")`,
 				`event.dns.request in ("evil.com")`,
 				`any(src.ip.address, dst.ip.address) in ("1.2.3.4")`,
 			},
 			wantErr: false,
 		},
 		{
-			name: "only hash queries",
+			name: "only hash queries, each hash type its own grouped query",
 			iocs: &extraction.IOCSet{
 				MD5Hashes:    []string{"hash1", "hash2"},
 				SHA256Hashes: []string{"hash3"},
 			},
 			want: []string{
-				`any(src.process.image.md5, tgt.file.md5) in ("hash1")`,
-				`any(src.process.image.md5, tgt.file.md5) in ("hash2")`,
+				`any(src.process.image.md5, tgt.file.md5) in ("hash1", "hash2")`,
 				`any(src.process.image.sha256, tgt.file.sha256) in ("hash3")`,
+			},
+			wantErr: false,
+		},
+		{
+			name: "all five IOC types produce five queries in type order",
+			iocs: &extraction.IOCSet{
+				MD5Hashes:     []string{"md5_1"},
+				SHA1Hashes:    []string{"sha1_1"},
+				SHA256Hashes:  []string{"sha256_1"},
+				Domains:       []string{"evil.com"},
+				IPv4Addresses: []string{"1.2.3.4", "5.6.7.8"},
+			},
+			want: []string{
+				`any(src.process.image.md5, tgt.file.md5) in ("md5_1")`,
+				`any(src.process.image.sha1, tgt.file.sha1) in ("sha1_1")`,
+				`any(src.process.image.sha256, tgt.file.sha256) in ("sha256_1")`,
+				`event.dns.request in ("evil.com")`,
+				`any(src.ip.address, dst.ip.address) in ("1.2.3.4", "5.6.7.8")`,
 			},
 			wantErr: false,
 		},

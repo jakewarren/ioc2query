@@ -101,23 +101,13 @@ event.dns.request in ("evil.com") || any(src.ip.address, dst.ip.address) in ("19
 ```bash
 $ ioc2query -b s1 -i threat_report.txt --separate
 
-any(src.process.image.md5, tgt.file.md5) in ("hash1")
+any(src.process.image.md5, tgt.file.md5) in ("hash1", "hash2", "hash3")
 
-any(src.process.image.md5, tgt.file.md5) in ("hash2")
+any(src.process.image.sha256, tgt.file.sha256) in ("hash4", "hash5")
 
-any(src.process.image.md5, tgt.file.md5) in ("hash3")
+event.dns.request in ("evil.net", "malicious.com")
 
-any(src.process.image.sha256, tgt.file.sha256) in ("hash4")
-
-any(src.process.image.sha256, tgt.file.sha256) in ("hash5")
-
-event.dns.request in ("malicious.com")
-
-event.dns.request in ("evil.net")
-
-any(src.ip.address, dst.ip.address) in ("1.2.3.4")
-
-any(src.ip.address, dst.ip.address) in ("5.6.7.8")
+any(src.ip.address, dst.ip.address) in ("1.2.3.4", "5.6.7.8")
 ```
 
 **Verbose output:**

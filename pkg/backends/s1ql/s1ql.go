@@ -82,7 +82,7 @@ func (b *S1QLBackend) GenerateQuery(iocs *extraction.IOCSet) ([]string, error) {
 	return []string{strings.Join(groups, " ||\n")}, nil
 }
 
-// GenerateQueries creates individual queries for each IOC
+// GenerateQueries creates one query per IOC type
 func (b *S1QLBackend) GenerateQueries(iocs *extraction.IOCSet) ([]string, error) {
 	if iocs == nil || iocs.IsEmpty() {
 		return nil, fmt.Errorf("IOC set is empty")
@@ -90,25 +90,20 @@ func (b *S1QLBackend) GenerateQueries(iocs *extraction.IOCSet) ([]string, error)
 
 	var queries []string
 
-	// Generate individual hash queries
-	for _, h := range iocs.MD5Hashes {
-		queries = append(queries, b.generateMD5Query([]string{h}))
+	if len(iocs.MD5Hashes) > 0 {
+		queries = append(queries, b.generateMD5Query(iocs.MD5Hashes))
 	}
-	for _, h := range iocs.SHA1Hashes {
-		queries = append(queries, b.generateSHA1Query([]string{h}))
+	if len(iocs.SHA1Hashes) > 0 {
+		queries = append(queries, b.generateSHA1Query(iocs.SHA1Hashes))
 	}
-	for _, h := range iocs.SHA256Hashes {
-		queries = append(queries, b.generateSHA256Query([]string{h}))
+	if len(iocs.SHA256Hashes) > 0 {
+		queries = append(queries, b.generateSHA256Query(iocs.SHA256Hashes))
 	}
-
-	// Generate individual domain queries
-	for _, d := range iocs.Domains {
-		queries = append(queries, b.generateDomainQuery([]string{d}))
+	if len(iocs.Domains) > 0 {
+		queries = append(queries, b.generateDomainQuery(iocs.Domains))
 	}
-
-	// Generate individual IP queries
-	for _, ip := range iocs.IPv4Addresses {
-		queries = append(queries, b.generateIPQuery([]string{ip}))
+	if len(iocs.IPv4Addresses) > 0 {
+		queries = append(queries, b.generateIPQuery(iocs.IPv4Addresses))
 	}
 
 	return queries, nil

@@ -280,51 +280,51 @@ func TestR7Backend_GenerateQueries(t *testing.T) {
 		validate  func(t *testing.T, queries []string)
 	}{
 		{
-			name: "multiple hashes",
+			name: "multiple hashes across hash sub-types grouped into one hash query",
 			iocs: &extraction.IOCSet{
 				MD5Hashes:  []string{"hash1"},
 				SHA1Hashes: []string{"hash2"},
 			},
-			wantCount: 2,
+			wantCount: 1,
 			wantErr:   false,
 			validate: func(t *testing.T, queries []string) {
 				if !strings.Contains(queries[0], "hash1") {
-					t.Errorf("First query should contain hash1")
+					t.Errorf("Query should contain hash1")
 				}
-				if !strings.Contains(queries[1], "hash2") {
-					t.Errorf("Second query should contain hash2")
+				if !strings.Contains(queries[0], "hash2") {
+					t.Errorf("Query should contain hash2")
 				}
 			},
 		},
 		{
-			name: "multiple domains",
+			name: "multiple domains grouped into one domain query",
 			iocs: &extraction.IOCSet{
 				Domains: []string{"evil.com", "bad.net"},
 			},
-			wantCount: 2,
+			wantCount: 1,
 			wantErr:   false,
 			validate: func(t *testing.T, queries []string) {
 				if !strings.Contains(queries[0], "evil.com") {
-					t.Errorf("First query should contain evil.com")
+					t.Errorf("Query should contain evil.com")
 				}
-				if !strings.Contains(queries[1], "bad.net") {
-					t.Errorf("Second query should contain bad.net")
+				if !strings.Contains(queries[0], "bad.net") {
+					t.Errorf("Query should contain bad.net")
 				}
 			},
 		},
 		{
-			name: "multiple IPs",
+			name: "multiple IPs grouped into one IP query",
 			iocs: &extraction.IOCSet{
 				IPv4Addresses: []string{"1.1.1.1", "2.2.2.2"},
 			},
-			wantCount: 2,
+			wantCount: 1,
 			wantErr:   false,
 			validate: func(t *testing.T, queries []string) {
 				if !strings.Contains(queries[0], "1.1.1.1") {
-					t.Errorf("First query should contain 1.1.1.1")
+					t.Errorf("Query should contain 1.1.1.1")
 				}
-				if !strings.Contains(queries[1], "2.2.2.2") {
-					t.Errorf("Second query should contain 2.2.2.2")
+				if !strings.Contains(queries[0], "2.2.2.2") {
+					t.Errorf("Query should contain 2.2.2.2")
 				}
 			},
 		},
