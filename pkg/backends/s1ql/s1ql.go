@@ -114,22 +114,25 @@ func (b *S1QLBackend) GenerateQueries(iocs *extraction.IOCSet) ([]string, error)
 	return queries, nil
 }
 
+// generateAnyFieldQuery builds an S1QL power-query clause that searches
+// multiple fields for the same set of values, e.g. any(f1, f2) in (v1, v2).
+func (b *S1QLBackend) generateAnyFieldQuery(fields []string, values []string) string {
+	return fmt.Sprintf(`any(%s) in (%s)`, strings.Join(fields, ", "), b.formatStringList(values))
+}
+
 // generateMD5Query creates a query for MD5 hashes
 func (b *S1QLBackend) generateMD5Query(hashes []string) string {
-	hashList := b.formatStringList(hashes)
-	return fmt.Sprintf(`src.process.image.md5 in (%s) || tgt.file.md5 in (%s)`, hashList, hashList)
+	return b.generateAnyFieldQuery([]string{"src.process.image.md5", "tgt.file.md5"}, hashes)
 }
 
 // generateSHA1Query creates a query for SHA1 hashes
 func (b *S1QLBackend) generateSHA1Query(hashes []string) string {
-	hashList := b.formatStringList(hashes)
-	return fmt.Sprintf(`src.process.image.sha1 in (%s) || tgt.file.sha1 in (%s)`, hashList, hashList)
+	return b.generateAnyFieldQuery([]string{"src.process.image.sha1", "tgt.file.sha1"}, hashes)
 }
 
 // generateSHA256Query creates a query for SHA256 hashes
 func (b *S1QLBackend) generateSHA256Query(hashes []string) string {
-	hashList := b.formatStringList(hashes)
-	return fmt.Sprintf(`src.process.image.sha256 in (%s) || tgt.file.sha256 in (%s)`, hashList, hashList)
+	return b.generateAnyFieldQuery([]string{"src.process.image.sha256", "tgt.file.sha256"}, hashes)
 }
 
 // generateDomainQuery creates a query for domains
@@ -140,12 +143,7 @@ func (b *S1QLBackend) generateDomainQuery(domains []string) string {
 
 // generateIPQuery creates a query for IP addresses
 func (b *S1QLBackend) generateIPQuery(ips []string) string {
-	if len(ips) == 1 {
-		return fmt.Sprintf(`src.ip.address = "%s" || dst.ip.address = "%s"`, ips[0], ips[0])
-	}
-
-	ipList := b.formatStringList(ips)
-	return fmt.Sprintf(`src.ip.address in (%s) || dst.ip.address in (%s)`, ipList, ipList)
+	return b.generateAnyFieldQuery([]string{"src.ip.address", "dst.ip.address"}, ips)
 }
 
 // formatStringList formats a list of strings for S1QL IN clauses
