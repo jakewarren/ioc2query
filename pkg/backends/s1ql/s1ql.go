@@ -82,7 +82,7 @@ func (b *S1QLBackend) GenerateQuery(iocs *extraction.IOCSet) ([]string, error) {
 	return []string{strings.Join(groups, " ||\n")}, nil
 }
 
-// GenerateQueries creates individual queries for each IOC
+// GenerateQueries creates one query per IOC type
 func (b *S1QLBackend) GenerateQueries(iocs *extraction.IOCSet) ([]string, error) {
 	if iocs == nil || iocs.IsEmpty() {
 		return nil, fmt.Errorf("IOC set is empty")
@@ -90,46 +90,44 @@ func (b *S1QLBackend) GenerateQueries(iocs *extraction.IOCSet) ([]string, error)
 
 	var queries []string
 
-	// Generate individual hash queries
-	for _, h := range iocs.MD5Hashes {
-		queries = append(queries, b.generateMD5Query([]string{h}))
+	if len(iocs.MD5Hashes) > 0 {
+		queries = append(queries, b.generateMD5Query(iocs.MD5Hashes))
 	}
-	for _, h := range iocs.SHA1Hashes {
-		queries = append(queries, b.generateSHA1Query([]string{h}))
+	if len(iocs.SHA1Hashes) > 0 {
+		queries = append(queries, b.generateSHA1Query(iocs.SHA1Hashes))
 	}
-	for _, h := range iocs.SHA256Hashes {
-		queries = append(queries, b.generateSHA256Query([]string{h}))
+	if len(iocs.SHA256Hashes) > 0 {
+		queries = append(queries, b.generateSHA256Query(iocs.SHA256Hashes))
 	}
-
-	// Generate individual domain queries
-	for _, d := range iocs.Domains {
-		queries = append(queries, b.generateDomainQuery([]string{d}))
+	if len(iocs.Domains) > 0 {
+		queries = append(queries, b.generateDomainQuery(iocs.Domains))
 	}
-
-	// Generate individual IP queries
-	for _, ip := range iocs.IPv4Addresses {
-		queries = append(queries, b.generateIPQuery([]string{ip}))
+	if len(iocs.IPv4Addresses) > 0 {
+		queries = append(queries, b.generateIPQuery(iocs.IPv4Addresses))
 	}
 
 	return queries, nil
 }
 
+// generateAnyFieldQuery builds an S1QL power-query clause that searches
+// multiple fields for the same set of values, e.g. any(f1, f2) in (v1, v2).
+func (b *S1QLBackend) generateAnyFieldQuery(fields []string, values []string) string {
+	return fmt.Sprintf(`any(%s) in (%s)`, strings.Join(fields, ", "), b.formatStringList(values))
+}
+
 // generateMD5Query creates a query for MD5 hashes
 func (b *S1QLBackend) generateMD5Query(hashes []string) string {
-	hashList := b.formatStringList(hashes)
-	return fmt.Sprintf(`src.process.image.md5 in (%s) || tgt.file.md5 in (%s)`, hashList, hashList)
+	return b.generateAnyFieldQuery([]string{"src.process.image.md5", "tgt.file.md5"}, hashes)
 }
 
 // generateSHA1Query creates a query for SHA1 hashes
 func (b *S1QLBackend) generateSHA1Query(hashes []string) string {
-	hashList := b.formatStringList(hashes)
-	return fmt.Sprintf(`src.process.image.sha1 in (%s) || tgt.file.sha1 in (%s)`, hashList, hashList)
+	return b.generateAnyFieldQuery([]string{"src.process.image.sha1", "tgt.file.sha1"}, hashes)
 }
 
 // generateSHA256Query creates a query for SHA256 hashes
 func (b *S1QLBackend) generateSHA256Query(hashes []string) string {
-	hashList := b.formatStringList(hashes)
-	return fmt.Sprintf(`src.process.image.sha256 in (%s) || tgt.file.sha256 in (%s)`, hashList, hashList)
+	return b.generateAnyFieldQuery([]string{"src.process.image.sha256", "tgt.file.sha256"}, hashes)
 }
 
 // generateDomainQuery creates a query for domains
@@ -140,12 +138,7 @@ func (b *S1QLBackend) generateDomainQuery(domains []string) string {
 
 // generateIPQuery creates a query for IP addresses
 func (b *S1QLBackend) generateIPQuery(ips []string) string {
-	if len(ips) == 1 {
-		return fmt.Sprintf(`src.ip.address = "%s" || dst.ip.address = "%s"`, ips[0], ips[0])
-	}
-
-	ipList := b.formatStringList(ips)
-	return fmt.Sprintf(`src.ip.address in (%s) || dst.ip.address in (%s)`, ipList, ipList)
+	return b.generateAnyFieldQuery([]string{"src.ip.address", "dst.ip.address"}, ips)
 }
 
 // formatStringList formats a list of strings for S1QL IN clauses
