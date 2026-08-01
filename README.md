@@ -92,9 +92,9 @@ ioc2query -b s1 -i iocs.txt -o query.txt
 $ echo "Observed malicious activity from 192.168.1.100 connecting to evil.com.
 File hash: 5d41402abc4b2a76b9719d911017c592" | ioc2query -b s1
 
-src.process.image.md5 IN ("5d41402abc4b2a76b9719d911017c592") || tgt.file.md5 IN ("5d41402abc4b2a76b9719d911017c592") OR
+any(src.process.image.md5, tgt.file.md5) IN ("5d41402abc4b2a76b9719d911017c592") OR
 event.dns.request IN ("evil.com") OR
-(src.ip.address = "192.168.1.100" || dst.ip.address = "192.168.1.100")
+any(src.ip.address, dst.ip.address) IN ("192.168.1.100")
 ```
 
 **Generate separate queries:**
@@ -102,13 +102,13 @@ event.dns.request IN ("evil.com") OR
 ```bash
 $ ioc2query -b s1 -i threat_report.txt --separate
 
-src.process.image.md5 IN ("hash1", "hash2", "hash3") || tgt.file.md5 IN ("hash1", "hash2", "hash3")
+any(src.process.image.md5, tgt.file.md5) IN ("hash1", "hash2", "hash3")
 
-src.process.image.sha256 IN ("hash4", "hash5") || tgt.file.sha256 IN ("hash4", "hash5")
+any(src.process.image.sha256, tgt.file.sha256) IN ("hash4", "hash5")
 
 event.dns.request IN ("malicious.com", "evil.net")
 
-(src.ip.address IN ("1.2.3.4", "5.6.7.8") || dst.ip.address IN ("1.2.3.4", "5.6.7.8"))
+any(src.ip.address, dst.ip.address) IN ("1.2.3.4", "5.6.7.8")
 ```
 
 **Verbose output:**
@@ -143,10 +143,10 @@ Query generation complete.
 
 ```sql
 -- Single MD5 hash
-src.process.image.md5 IN ("5d41402abc4b2a76b9719d911017c592") || tgt.file.md5 IN ("5d41402abc4b2a76b9719d911017c592")
+any(src.process.image.md5, tgt.file.md5) IN ("5d41402abc4b2a76b9719d911017c592")
 
 -- Multiple hashes
-src.process.image.md5 IN ("hash1", "hash2", "hash3") || tgt.file.md5 IN ("hash1", "hash2", "hash3")
+any(src.process.image.md5, tgt.file.md5) IN ("hash1", "hash2", "hash3")
 ```
 
 ### Domains
@@ -163,10 +163,10 @@ event.dns.request IN ("evil.com", "bad.net", "malware.org")
 
 ```sql
 -- Single IP (checks both source and destination)
-(src.ip.address = "192.168.1.1" || dst.ip.address = "192.168.1.1")
+any(src.ip.address, dst.ip.address) IN ("192.168.1.1")
 
 -- Multiple IPs
-(src.ip.address IN ("10.0.0.1", "172.16.0.1") || dst.ip.address IN ("10.0.0.1", "172.16.0.1"))
+any(src.ip.address, dst.ip.address) IN ("10.0.0.1", "172.16.0.1")
 ```
 
 
