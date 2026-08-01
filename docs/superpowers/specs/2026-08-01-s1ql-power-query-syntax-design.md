@@ -47,12 +47,9 @@ Update expected strings in [pkg/backends/s1ql/s1ql_test.go](../../../pkg/backend
 
 ## Docs
 
-Update example query outputs to the new `any(...)` syntax in:
+Update example query outputs to the new `any(...)` syntax in [README.md](../../../README.md).
 
-- [README.md](../../../README.md)
-- [openspec/specs/s1ql-backend/spec.md](../../../openspec/specs/s1ql-backend/spec.md) (acceptance criteria and scenarios for MD5/SHA1/SHA256/IPv4 requirements)
-
-This does not go through the full OpenSpec change-proposal workflow (proposal.md/tasks.md/delta specs) — by explicit user choice, this is a superpowers-brainstorming design doc instead, but the OpenSpec `specs/` content is still kept in sync since it documents current, deployed behavior.
+Note: the OpenSpec convention and directory (`openspec/`) have been removed from this project as a separate change, so there is no OpenSpec spec file to keep in sync anymore.
 
 ## Out of scope
 
