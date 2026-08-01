@@ -92,9 +92,8 @@ ioc2query -b s1 -i iocs.txt -o query.txt
 $ echo "Observed malicious activity from 192.168.1.100 connecting to evil.com.
 File hash: 5d41402abc4b2a76b9719d911017c592" | ioc2query -b s1
 
-any(src.process.image.md5, tgt.file.md5) IN ("5d41402abc4b2a76b9719d911017c592") OR
-event.dns.request IN ("evil.com") OR
-any(src.ip.address, dst.ip.address) IN ("192.168.1.100")
+any(src.process.image.md5, tgt.file.md5) in ("5d41402abc4b2a76b9719d911017c592") ||
+event.dns.request in ("evil.com") || any(src.ip.address, dst.ip.address) in ("192.168.1.100")
 ```
 
 **Generate separate queries:**
@@ -102,13 +101,23 @@ any(src.ip.address, dst.ip.address) IN ("192.168.1.100")
 ```bash
 $ ioc2query -b s1 -i threat_report.txt --separate
 
-any(src.process.image.md5, tgt.file.md5) IN ("hash1", "hash2", "hash3")
+any(src.process.image.md5, tgt.file.md5) in ("hash1")
 
-any(src.process.image.sha256, tgt.file.sha256) IN ("hash4", "hash5")
+any(src.process.image.md5, tgt.file.md5) in ("hash2")
 
-event.dns.request IN ("malicious.com", "evil.net")
+any(src.process.image.md5, tgt.file.md5) in ("hash3")
 
-any(src.ip.address, dst.ip.address) IN ("1.2.3.4", "5.6.7.8")
+any(src.process.image.sha256, tgt.file.sha256) in ("hash4")
+
+any(src.process.image.sha256, tgt.file.sha256) in ("hash5")
+
+event.dns.request in ("malicious.com")
+
+event.dns.request in ("evil.net")
+
+any(src.ip.address, dst.ip.address) in ("1.2.3.4")
+
+any(src.ip.address, dst.ip.address) in ("5.6.7.8")
 ```
 
 **Verbose output:**
